@@ -1,6 +1,8 @@
 package screen
 
 import (
+	"vado-tui/component/chat"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -8,10 +10,10 @@ import (
 type Type uint
 
 const (
-	ScreenDefaul Type = iota
-	ScreenHelp
-	ScreenChat
-	ScreenSettings
+	Default Type = iota
+	Help
+	Chat
+	Settings
 )
 
 type Model struct {
@@ -24,7 +26,7 @@ type Model struct {
 }
 
 func NewModel() *Model {
-	return &Model{menuHeight: 6, active: ScreenDefaul}
+	return &Model{menuHeight: 6, active: Default}
 }
 
 func (m *Model) SetScreen(active Type) {
@@ -53,13 +55,13 @@ func (m *Model) View() string {
 		Height(m.height)
 
 	switch m.active {
-	case ScreenHelp:
+	case Help:
 		return style.Render("HELP SCREEN:\n\nВот тут хелп текст...")
-	case ScreenChat:
-		return style.Render("Chat:\n\nВот тут хелп текст...")
-	case ScreenSettings:
-		return style.Render("Settings:\n\nВот тут хелп текст...")
-	case ScreenDefaul:
+	case Chat:
+		return chat.NewModel().View()
+	case Settings:
+		return style.Render("SETTINGS SCREEN")
+	case Default:
 		fallthrough
 	default:
 		return style.

@@ -31,7 +31,11 @@ func main() {
 		log.Println("Is not terminal")
 	}*/
 
-	p := tea.NewProgram(app.NewModel(), tea.WithAltScreen())
+	p := tea.NewProgram(
+		app.NewModel(),
+		tea.WithAltScreen(),
+		tea.WithMouseCellMotion(),
+	)
 	_, err := p.Run()
 	if err != nil {
 		fmt.Println(err)

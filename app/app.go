@@ -30,6 +30,9 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.scr.Update(msg)
 	case menu.SelectMsg:
+		if msg.Key == tea.KeyF10 {
+			return m, tea.Quit
+		}
 		m.onMenuSelect(msg.Key)
 	}
 
@@ -44,11 +47,11 @@ func (m *Model) View() string {
 func (m *Model) onMenuSelect(key tea.KeyType) {
 	switch key {
 	case tea.KeyF1:
-		m.scr.SetScreen(screen.ScreenHelp)
+		m.scr.SetScreen(screen.Help)
 	case tea.KeyF2:
-		m.scr.SetScreen(screen.ScreenChat)
+		m.scr.SetScreen(screen.Chat)
 	case tea.KeyF3:
-		m.scr.SetScreen(screen.ScreenSettings)
+		m.scr.SetScreen(screen.Settings)
 	default:
 		panic("invalid key")
 	}

@@ -1,6 +1,7 @@
 package menu
 
 import (
+	"log"
 	"strings"
 	"vado-tui/component/button"
 
@@ -8,6 +9,7 @@ import (
 )
 
 const (
+	gap         = 2
 	buttonWidth = 17
 )
 
@@ -15,11 +17,19 @@ type SelectMsg struct {
 	Key tea.KeyType
 }
 
+type area struct {
+	start int
+	end   int
+	key   tea.KeyType
+}
+
 type Model struct {
-	btn1  *button.Model
-	btn2  *button.Model
-	btn3  *button.Model
-	btn10 *button.Model
+	terminalHeight int
+	btn1           *button.Model
+	btn2           *button.Model
+	btn3           *button.Model
+	btn10          *button.Model
+	areas          []area
 }
 
 func NewModel() *Model {
@@ -28,6 +38,12 @@ func NewModel() *Model {
 		btn2:  button.NewModel("F2 Chat", tea.KeyF2, buttonWidth, 1),
 		btn3:  button.NewModel("F3 Settings", tea.KeyF3, buttonWidth, 1),
 		btn10: button.NewModel("F10 Quit", tea.KeyF10, buttonWidth, 1),
+		areas: []area{
+			{start: 0, end: buttonWidth, key: tea.KeyF1},
+			{start: buttonWidth + gap, end: buttonWidth + gap + buttonWidth, key: tea.KeyF2},
+			{start: 2 * (buttonWidth + gap), end: 2*(buttonWidth+gap) + buttonWidth, key: tea.KeyF3},
+			{start: 3 * (buttonWidth + gap), end: 3*(buttonWidth+gap) + buttonWidth, key: tea.KeyF10},
+		},
 	}
 }
 
@@ -37,11 +53,33 @@ func (m *Model) Init() tea.Cmd {
 
 func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
-		switch msg.Type {
-		case tea.KeyF10:
-			return m, tea.Quit
-		default:
+	case tea.WindowSizeMsg:
+		m.terminalHeight = msg.Height
+
+	case tea.MouseMsg:
+		if msg.Action == tea.MouseActionPress && msg.Button == tea.MouseButtonLeft {
+			if msg.Y >= m.terminalHeight-5 && msg.Y <= m.terminalHeight-gap {
+				x := msg.X
+				log.Println("GOOD", x)
+				for _, a := range m.areas {
+					if x >= a.start && x <= a.end {
+						m.activate(a.key)
+						return m, func() tea.Msg {
+							return SelectMsg{Key: a.key}
+						}
+					}
+				}
+			} else {
+				log.Println("BAD")
+			}
+		}
+	}
+
+	switch msg := msg.(type) {
+	case button.PressedMsg:
+		m.activate(msg.Key)
+		return m, func() tea.Msg {
+			return SelectMsg{Key: msg.Key}
 		}
 	}
 
@@ -55,14 +93,6 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 	m.btn10, cmd = m.btn10.Update(msg)
 	cmds = append(cmds, cmd)
-
-	switch msg := msg.(type) {
-	case button.PressedMsg:
-		m.activate(msg.Key)
-		return m, func() tea.Msg {
-			return SelectMsg{Key: msg.Key}
-		}
-	}
 
 	return m, tea.Batch(cmds...)
 }
