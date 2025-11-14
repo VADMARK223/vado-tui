@@ -1,7 +1,6 @@
 package menu
 
 import (
-	"log"
 	"strings"
 	"vado-tui/component/button"
 
@@ -60,7 +59,6 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 		if msg.Action == tea.MouseActionPress && msg.Button == tea.MouseButtonLeft {
 			if msg.Y >= m.terminalHeight-5 && msg.Y <= m.terminalHeight-gap {
 				x := msg.X
-				log.Println("GOOD", x)
 				for _, a := range m.areas {
 					if x >= a.start && x <= a.end {
 						m.activate(a.key)
@@ -69,8 +67,6 @@ func (m *Model) Update(msg tea.Msg) (*Model, tea.Cmd) {
 						}
 					}
 				}
-			} else {
-				log.Println("BAD")
 			}
 		}
 	}

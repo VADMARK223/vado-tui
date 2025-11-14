@@ -22,13 +22,19 @@ func NewModel() *Model {
 }
 
 func (m *Model) Init() tea.Cmd {
+	//m.scr.SetScreen(screen.Help) // TODO Delete after
 	return nil
 }
 
 func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
+	_, cmd := m.scr.Update(msg)
+	if cmd != nil {
+		cmds = append(cmds, cmd)
+	}
+
 	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.scr.Update(msg)
+
 	case menu.SelectMsg:
 		if msg.Key == tea.KeyF10 {
 			return m, tea.Quit
@@ -36,8 +42,12 @@ func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.onMenuSelect(msg.Key)
 	}
 
-	_, cmd := m.menu.Update(msg)
-	return m, cmd
+	_, cmd = m.menu.Update(msg)
+	if cmd != nil {
+		cmds = append(cmds, cmd)
+	}
+
+	return m, tea.Batch(cmds...)
 }
 
 func (m *Model) View() string {
