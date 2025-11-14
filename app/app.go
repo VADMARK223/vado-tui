@@ -22,7 +22,6 @@ func NewModel() *Model {
 }
 
 func (m *Model) Init() tea.Cmd {
-	//m.scr.SetScreen(screen.Help) // TODO Delete after
 	return nil
 }
 
